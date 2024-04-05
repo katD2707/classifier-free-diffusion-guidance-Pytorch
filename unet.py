@@ -299,7 +299,9 @@ class Unet(nn.Module):
             hs.append(h)
         h = self.middleblocks(h, temb, cemb)
         for block in self.upblocks:
+            print("Error here")
             h = torch.cat([h, hs.pop()], dim=1)
+            print("True")
             h = block(h, temb, cemb)
         h = h.type(self.dtype)
         return self.out(h)
