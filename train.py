@@ -172,7 +172,11 @@ def train(params: argparse.Namespace):
                     generated = diffusion.sample(genshape, cemb=cemb)
                 img = transback(generated)
                 img = img.reshape(
-                    params.clsnum, each_device_batch // params.clsnum, params.inch, imagesize, imagesize
+                    params.clsnum,
+                    each_device_batch // params.clsnum,
+                    params.inch,
+                    imagesize,
+                    imagesize,
                 ).contiguous()
                 gathered_samples = [
                     torch.zeros_like(img) for _ in range(get_world_size())

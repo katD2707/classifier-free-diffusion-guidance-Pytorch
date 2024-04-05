@@ -107,4 +107,4 @@ class CustomDataset(Dataset):
 
         return (
             self.transforms(self.images[item]) if self.transforms else self.images[item]
-        )
+        ), kwargs
