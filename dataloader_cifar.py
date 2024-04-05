@@ -82,15 +82,15 @@ class CustomDataset(Dataset):
                 self.labels = np.concatenate(
                     [
                         self.labels,
-                        data[f"{m}_clean"]["label"],
-                        data[f"{m}_noisy"]["label"],
+                        data[f"{m}_clean"]["label"].reshape(-1),
+                        data[f"{m}_noisy"]["label"].reshape(-1),
                     ]
                 )
                 self.classes = np.concatenate(
                     [
                         self.classes,
-                        data[f"{m}_clean"]["class"],
-                        data[f"{m}_noisy"]["class"],
+                        data[f"{m}_clean"]["class"].reshape(-1),
+                        data[f"{m}_noisy"]["class"].reshape(-1),
                     ]
                 )
         del data
