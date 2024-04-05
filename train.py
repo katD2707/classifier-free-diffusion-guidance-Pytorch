@@ -129,7 +129,7 @@ def train(params: argparse.Namespace):
                 b = img.shape[0]
                 optimizer.zero_grad()
                 x_0 = img.to(device)
-                lab = kwargs["y"].type(torch.FloatTensor).to(device)
+                lab = kwargs["y"].type(torch.int8).to(device)
 
                 cemb = cemblayer(lab)
                 cemb[np.where(np.random.rand(b) < params.threshold)] = 0
