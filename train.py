@@ -125,11 +125,11 @@ def train(params: argparse.Namespace):
         with tqdm(
             dataloader, dynamic_ncols=True, disable=(local_rank % cnt != 0)
         ) as tqdmDataLoader:
-            for img, lab in tqdmDataLoader:
+            for img, kwargs in tqdmDataLoader:
                 b = img.shape[0]
                 optimizer.zero_grad()
                 x_0 = img.to(device)
-                lab = lab.to(device)
+                lab = kwargs["y"].to(device)
                 cemb = cemblayer(lab)
                 cemb[np.where(np.random.rand(b) < params.threshold)] = 0
                 loss = diffusion.trainloss(x_0, cemb=cemb)
