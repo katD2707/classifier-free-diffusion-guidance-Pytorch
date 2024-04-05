@@ -128,7 +128,8 @@ def train(params: argparse.Namespace):
             for img, kwargs in tqdmDataLoader:
                 b = img.shape[0]
                 optimizer.zero_grad()
-                x_0 = img.to(device)
+                print(img)
+                x_0 = img.float().to(device)
                 lab = kwargs["y"].long().to(device)
 
                 cemb = cemblayer(lab)
