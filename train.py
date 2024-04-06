@@ -47,7 +47,7 @@ def train(params: argparse.Namespace):
 
     transforms = None
     imagesize = 32
-    if params.data == "mnist":
+    if params.data in ["mnist", "fmnist"]:
         transforms = normalize
         imagesize = 28
     dataloader, sampler = load_data(
