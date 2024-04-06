@@ -37,6 +37,7 @@ def train(params: argparse.Namespace):
     # set device
     device = torch.device("cuda", local_rank)
     # load data
+    params.chmul = [i for i in params.chmul if i.isdigit()]
 
     transforms = None
     imagesize = 32
