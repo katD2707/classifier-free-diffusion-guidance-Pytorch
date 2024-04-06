@@ -208,10 +208,10 @@ def train(params: argparse.Namespace):
                 "scheduler": warmUpScheduler.state_dict(),
             }
             torch.save(
-                {"last_epoch": epc + 1}, os.path.join(params.moddir, "last_epoch.pt")
+                {"last_epoch": epc + 1}, os.path.join("model", "last_epoch.pt")
             )
             torch.save(
-                checkpoint, os.path.join(params.moddir, f"ckpt_{epc+1}_checkpoint.pt")
+                checkpoint, os.path.join("model", f"ckpt_{epc+1}_checkpoint.pt")
             )
         torch.cuda.empty_cache()
     destroy_process_group()
