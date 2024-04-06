@@ -123,7 +123,7 @@ def train(params: argparse.Namespace):
         warmUpScheduler.load_state_dict(checkpoint["scheduler"])
     # training
     cnt = torch.cuda.device_count()
-    for epc in range(lastepc, params.epoch):
+    for epc in range(lastepc, params.epoch if not params.last_epoch else params.last_epoch):
         # turn into train mode
         diffusion.model.train()
         cemblayer.train()
@@ -279,6 +279,7 @@ def main():
         help="hyperparameters for the variance of posterior distribution",
     )
     parser.add_argument("--epoch", type=int, default=1500, help="epochs for training")
+    parser.add_argument("--last_epoch", type=int, default=None, help="epochs for training")
     parser.add_argument(
         "--multiplier", type=float, default=2.5, help="multiplier for warmup"
     )
