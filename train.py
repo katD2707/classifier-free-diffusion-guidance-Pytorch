@@ -72,7 +72,7 @@ def train(params: argparse.Namespace):
         droprate=params.droprate,
         dtype=params.dtype,
     )
-    cemblayer = ConditionalEmbedding(10, params.cdim, params.cdim).to(device)
+    cemblayer = ConditionalEmbedding(params.clsnum, params.cdim, params.cdim).to(device)
     # load last epoch
     lastpath = os.path.join(params.moddir, "last_epoch.pt")
     if os.path.exists(lastpath):
