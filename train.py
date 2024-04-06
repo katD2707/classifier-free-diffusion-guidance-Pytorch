@@ -43,7 +43,7 @@ def train(params: argparse.Namespace):
             chmul.append(i)
         else:
             if i.isdigit():
-                chmul.append(i)
+                chmul.append(int(i))
 
     transforms = None
     imagesize = 32
