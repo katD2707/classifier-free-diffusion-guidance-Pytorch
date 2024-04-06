@@ -294,14 +294,19 @@ class Unet(nn.Module):
         cemb = self.cemb_layer(cemb)
         hs = []
         h = x.type(self.dtype)
+        print(h.shape)
         for block in self.downblocks:
             h = block(h, temb, cemb)
+            print(h.shape)
             hs.append(h)
         h = self.middleblocks(h, temb, cemb)
+        print(h.shape)
         for block in self.upblocks:
             print("Error here")
             h = torch.cat([h, hs.pop()], dim=1)
+            print(h.shape)
             print("True")
             h = block(h, temb, cemb)
+            print(h.shape)
         h = h.type(self.dtype)
         return self.out(h)
