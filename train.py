@@ -37,7 +37,13 @@ def train(params: argparse.Namespace):
     # set device
     device = torch.device("cuda", local_rank)
     # load data
-    params.chmul = [int(i) for i in params.chmul if i.isdigit()]
+    chmul = []
+    for i in params.chmul:
+        if type(i) == int:
+            chmul.append(i)
+        else:
+            if i.isdigit():
+                chmul.append(i)
 
     transforms = None
     imagesize = 32
@@ -59,7 +65,7 @@ def train(params: argparse.Namespace):
         in_ch=params.inch,
         mod_ch=params.modch,
         out_ch=params.outch,
-        ch_mul=params.chmul,
+        ch_mul=chmul,
         num_res_blocks=params.numres,
         cdim=params.cdim,
         use_conv=params.useconv,
