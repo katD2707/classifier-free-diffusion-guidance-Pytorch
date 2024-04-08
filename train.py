@@ -136,7 +136,8 @@ def train(params: argparse.Namespace):
                 b = img.shape[0]
                 optimizer.zero_grad()
                 x_0 = img.float().to(device)
-                lab = kwargs["y"].long().to(device)
+                lab = kwargs["y_true"] if params.clean else kwargs["y"]
+                lab = lab.long().to(device)
 
                 cemb = cemblayer(lab)
                 cemb[np.where(np.random.rand(b) < params.threshold)] = 0
@@ -303,6 +304,12 @@ def main():
         "--genbatch", type=int, default=80, help="batch size for sampling process"
     )
     parser.add_argument("--clsnum", type=int, default=10, help="num of label classes")
+    parser.add_argument(
+        "--clean",
+        type=bool,
+        default=False,
+        help="whether train clean data",
+    )
     parser.add_argument(
         "--num_steps", type=int, default=50, help="sampling steps for DDIM"
     )
