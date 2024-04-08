@@ -31,11 +31,19 @@ def sample(params: argparse.Namespace):
     # set device
     device = torch.device("cuda", local_rank)
     # load models
+    chmul = []
+    for i in params.chmul:
+        if type(i) == int:
+            chmul.append(i)
+        else:
+            if i.isdigit():
+                chmul.append(int(i))
+
     net = Unet(
         in_ch=params.inch,
         mod_ch=params.modch,
         out_ch=params.outch,
-        ch_mul=params.chmul,
+        ch_mul=chmul,
         num_res_blocks=params.numres,
         cdim=params.cdim,
         use_conv=params.useconv,
