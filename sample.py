@@ -100,7 +100,7 @@ def sample(params: argparse.Namespace):
     #     print(lab)
     #     print(f'numloop:{numloop}')
     cemb = cemblayer(lab)
-    genshape = (each_device_batch, 3, 32, 32)
+    genshape = (each_device_batch, params.inch, params.imgsz, params.imgsz)
     all_samples = []
     if local_rank == 0:
         print(numloop)
@@ -114,13 +114,13 @@ def sample(params: argparse.Namespace):
         # transform samples into images
         img = transback(generated)
         img = img.reshape(
-            params.clsnum, each_device_batch // params.clsnum, 3, 32, 32
+            params.clsnum, each_device_batch // params.clsnum, params.inch, params.imgsz, params.imgsz
         ).contiguous()
         gathered_samples = [torch.zeros_like(img) for _ in range(get_world_size())]
         all_gather(gathered_samples, img)
         all_samples.extend([img.cpu() for img in gathered_samples])
     samples = torch.concat(all_samples, dim=1).reshape(
-        params.genbatch * numloop, 3, 32, 32
+        params.genbatch * numloop, params.inch, params.imgsz, params.imgsz
     )
     if local_rank == 0:
         print(samples.shape)
@@ -182,6 +182,7 @@ def main():
         "--moddir", type=str, default="model_backup", help="model addresses"
     )
     parser.add_argument("--samdir", type=str, default="sample", help="sample addresses")
+    parser.add_argument("--imgsz", type=int, default=32, help="size of the image")
     parser.add_argument(
         "--inch", type=int, default=3, help="input channels for Unet model"
     )
