@@ -102,6 +102,7 @@ def sample(params: argparse.Namespace):
     cemb = cemblayer(lab)
     genshape = (each_device_batch, params.inch, params.imgsz, params.imgsz)
     all_samples = []
+    all_labels = []
     if local_rank == 0:
         print(numloop)
     for _ in range(numloop):
@@ -122,6 +123,15 @@ def sample(params: argparse.Namespace):
     samples = torch.concat(all_samples, dim=1).reshape(
         params.genbatch * numloop, params.inch, params.imgsz, params.imgsz
     )
+    lab = lab.reshape(params.clsnum, each_device_batch // params.clsnum)
+    gathered_labels = [torch.zeros_like(lab) for _ in range(get_world_size())]
+    all_gather(gathered_labels, lab)
+    all_labels = gathered_labels * numloop
+    all_labels = [lb.cpu() for lb in all_labels]
+    labels = torch.concat(all_labels, dim=1).reshape(
+        params.genbatch * numloop,
+    )
+
     if local_rank == 0:
         print(samples.shape)
         # save images
@@ -135,6 +145,7 @@ def sample(params: argparse.Namespace):
                     f"sample_{samples.shape[0]}_diffusion_{params.epoch}_{params.w}.npz",
                 ),
                 samples,
+                labels,
             )
         else:
             save_image(
