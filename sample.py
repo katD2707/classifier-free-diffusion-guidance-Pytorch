@@ -95,10 +95,12 @@ def sample(params: argparse.Namespace):
         lab = torch.randint(
             low=0, high=params.clsnum, size=(each_device_batch,), device=device
         )
-    # get label embeddings
-    # if local_rank == 0:
-    #     print(lab)
-    #     print(f'numloop:{numloop}')
+
+    seed = params.seed
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    np.random.seed(seed)
+
     cemb = cemblayer(lab)
     genshape = (each_device_batch, params.inch, params.imgsz, params.imgsz)
     all_samples = []
@@ -192,6 +194,7 @@ def main():
     parser.add_argument(
         "--moddir", type=str, default="model_backup", help="model addresses"
     )
+    parser.add_argument("--seed", type=int, default=0, help="seed of the sampling")
     parser.add_argument("--samdir", type=str, default="sample", help="sample addresses")
     parser.add_argument("--imgsz", type=int, default=32, help="size of the image")
     parser.add_argument(
