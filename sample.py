@@ -144,7 +144,7 @@ def sample(params: argparse.Namespace):
             np.savez(
                 os.path.join(
                     params.samdir,
-                    f"sample_{samples.shape[0]}_diffusion_{params.epoch}_{params.w}.npz",
+                    f"sample_{samples.shape[0]}_diffusion_{params.epoch}_{params.w}_seed_{params.seed}.npz",
                 ),
                 samples,
                 labels,
@@ -153,7 +153,7 @@ def sample(params: argparse.Namespace):
             save_image(
                 samples,
                 os.path.join(
-                    params.samdir, f"sample_{params.epoch}_pict_{params.w}.png"
+                    params.samdir, f"sample_{params.epoch}_pict_{params.w}_seed_{params.seed}.png"
                 ),
                 nrow=params.genbatch // params.clsnum,
             )
