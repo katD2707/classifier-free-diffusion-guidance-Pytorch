@@ -206,7 +206,7 @@ class GaussianDiffusion(nn.Module):
         noise[t <= 0] = 0
         return mean + torch.sqrt(var) * noise
 
-    def sample(self, shape: tuple, **model_kwargs) -> torch.Tensor:
+    def sample(self, shape: tuple, num_steps, **model_kwargs) -> torch.Tensor:
         """
         sample images from p_{theta}
         """
@@ -215,18 +215,25 @@ class GaussianDiffusion(nn.Module):
             print("Start generating...")
         if model_kwargs == None:
             model_kwargs = {}
+        # a subsequence of range(0,1000)
+        tseq = list(np.linspace(0, self.T - 1, num_steps).astype(int))
+
         x_t = torch.randn(shape, device=self.device)
-        tlist = torch.ones([x_t.shape[0]], device=self.device) * self.T
-        for _ in tqdm(
-            range(self.T),
+        tlist = torch.zeros([x_t.shape[0]], device=self.device)
+        for t in tqdm(
+            tseq[::-1],
             dynamic_ncols=True,
             disable=(local_rank % torch.cuda.device_count() != 0),
         ):
-            tlist -= 1
             with torch.no_grad():
+                tlist = tlist * 0 + t
                 x_t = self.p_sample(x_t, tlist, **model_kwargs)
-                print(x_t.max())
-                print(x_t.min())
+                # if i != num_steps - 1:
+                #     prevt = torch.ones_like(tlist, device=self.device) * tseq[-2 - i]
+                # else:
+                #     prevt = -torch.ones_like(tlist, device=self.device)
+                # x_t = self.ddim_p_sample(x_t, tlist, prevt, e, **model_kwargs)
+                torch.cuda.empty_cache()
         x_t = torch.clamp(x_t, -1, 1)
         if local_rank == 0:
             print("ending sampling process...")

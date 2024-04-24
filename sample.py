@@ -113,7 +113,7 @@ def sample(params: argparse.Namespace):
                 genshape, params.num_steps, params.eta, params.select, cemb=cemb
             )
         else:
-            generated = diffusion.sample(genshape, cemb=cemb)
+            generated = diffusion.sample(genshape, params.num_steps, cemb=cemb)
         # transform samples into images
         img = transback(generated)
         img = img.reshape(
