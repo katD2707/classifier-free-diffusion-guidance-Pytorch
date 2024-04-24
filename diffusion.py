@@ -33,7 +33,7 @@ class GaussianDiffusion(nn.Module):
         self.alphas_bar = torch.exp(self.log_alphas_bar)
         # self.alphas_bar = torch.cumprod(self.alphas, dim = 0)
 
-        if num_steps is not None:
+        if num_steps:
             tseq = list(np.linspace(0, self.T - 1, num_steps).astype(int))
             last_alpha_bar = 1.0
             new_betas = []

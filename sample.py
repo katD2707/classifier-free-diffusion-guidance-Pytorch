@@ -69,7 +69,6 @@ def sample(params: argparse.Namespace):
         w=params.w,
         v=params.v,
         device=device,
-        num_steps=params.num_steps
     )
     # DDP settings
     diffusion.model = DDP(
