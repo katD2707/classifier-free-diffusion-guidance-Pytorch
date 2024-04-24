@@ -15,6 +15,7 @@ class GaussianDiffusion(nn.Module):
         w: float,
         v: float,
         device: torch.device,
+        num_steps=None,
     ):
         super().__init__()
         self.dtype = dtype
@@ -31,6 +32,22 @@ class GaussianDiffusion(nn.Module):
         self.log_alphas_bar = torch.cumsum(self.log_alphas, dim=0)
         self.alphas_bar = torch.exp(self.log_alphas_bar)
         # self.alphas_bar = torch.cumprod(self.alphas, dim = 0)
+
+        if num_steps is not None:
+            tseq = list(np.linspace(0, self.T - 1, num_steps).astype(int))
+            last_alpha_bar = 1.0
+            new_betas = []
+            for i, alpha_bar in enumerate(self.alphas_bar):
+                if i in tseq:
+                    new_betas.append(1 - alpha_bar / last_alpha_bar)
+                    last_alpha_bar = alpha_bar
+            self.betas = torch.tensor(new_betas, dtype=self.dtype)
+            self.T = len(betas)
+            self.alphas = 1 - self.betas
+            self.log_alphas = torch.log(self.alphas)
+
+            self.log_alphas_bar = torch.cumsum(self.log_alphas, dim=0)
+            self.alphas_bar = torch.exp(self.log_alphas_bar)
 
         self.log_alphas_bar_prev = F.pad(
             self.log_alphas_bar[:-1], [1, 0], "constant", 0
@@ -206,37 +223,24 @@ class GaussianDiffusion(nn.Module):
         noise[t <= 0] = 0
         return mean + torch.sqrt(var) * noise
 
-    def sample(self, shape: tuple, num_steps, **model_kwargs) -> torch.Tensor:
+    def sample(self, shape: tuple, **model_kwargs) -> torch.Tensor:
         """
         sample images from p_{theta}
         """
         local_rank = get_rank()
         if local_rank == 0:
-            print("Start generating...")
+            print('Start generating...')
         if model_kwargs == None:
             model_kwargs = {}
-        # a subsequence of range(0,1000)
-        tseq = list(np.linspace(0, self.T - 1, num_steps).astype(int))
-
         x_t = torch.randn(shape, device=self.device)
-        tlist = torch.zeros([x_t.shape[0]], device=self.device)
-        for t in tqdm(
-            tseq[::-1],
-            dynamic_ncols=True,
-            disable=(local_rank % torch.cuda.device_count() != 0),
-        ):
+        tlist = torch.ones([x_t.shape[0]], device=self.device) * self.T
+        for _ in tqdm(range(self.T), dynamic_ncols=True, disable=(local_rank % torch.cuda.device_count() != 0)):
+            tlist -= 1
             with torch.no_grad():
-                tlist = tlist * 0 + t
                 x_t = self.p_sample(x_t, tlist, **model_kwargs)
-                # if i != num_steps - 1:
-                #     prevt = torch.ones_like(tlist, device=self.device) * tseq[-2 - i]
-                # else:
-                #     prevt = -torch.ones_like(tlist, device=self.device)
-                # x_t = self.ddim_p_sample(x_t, tlist, prevt, e, **model_kwargs)
-                torch.cuda.empty_cache()
         x_t = torch.clamp(x_t, -1, 1)
         if local_rank == 0:
-            print("ending sampling process...")
+            print('ending sampling process...')
         return x_t
 
     def ddim_p_mean_variance(
