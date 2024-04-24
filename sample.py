@@ -69,6 +69,7 @@ def sample(params: argparse.Namespace):
         w=params.w,
         v=params.v,
         device=device,
+        num_steps=params.num_steps
     )
     # DDP settings
     diffusion.model = DDP(
@@ -113,7 +114,7 @@ def sample(params: argparse.Namespace):
                 genshape, params.num_steps, params.eta, params.select, cemb=cemb
             )
         else:
-            generated = diffusion.sample(genshape, params.num_steps, cemb=cemb)
+            generated = diffusion.sample(genshape, cemb=cemb)
         # transform samples into images
         img = transback(generated)
         img = img.reshape(
