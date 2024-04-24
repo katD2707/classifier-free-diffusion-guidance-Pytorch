@@ -42,7 +42,7 @@ class GaussianDiffusion(nn.Module):
                     new_betas.append(1 - alpha_bar / last_alpha_bar)
                     last_alpha_bar = alpha_bar
             self.betas = torch.tensor(new_betas, dtype=self.dtype)
-            self.T = len(betas)
+            self.T = len(self.betas)
             self.alphas = 1 - self.betas
             self.log_alphas = torch.log(self.alphas)
 
