@@ -225,6 +225,8 @@ class GaussianDiffusion(nn.Module):
             tlist -= 1
             with torch.no_grad():
                 x_t = self.p_sample(x_t, tlist, **model_kwargs)
+                print(x_t.min())
+                print(x_t.max())
         x_t = torch.clamp(x_t, -1, 1)
         if local_rank == 0:
             print("ending sampling process...")
